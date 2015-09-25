@@ -1,0 +1,13 @@
+INSERT INTO `queries` VALUES (2,'SELECT NOW();','Time and date now.');
+INSERT INTO `queries` VALUES (1,'SELECT COUNT(*) FROM syslog;','Amount of messages in syslog.');
+INSERT INTO `queries` VALUES (3,'SELECT COUNT(*) FROM syslog WHERE date < DATE_SUB(CURRENT_DATE(), INTERVAL 60 DAY);','Number of entries in syslog older than 60 days.');
+INSERT INTO `queries` VALUES (4,'SELECT * FROM syslog WHERE message LIKE \'%$ARG1%\' LIMIT 0, 10;','10 entries containing the searchstring.');
+INSERT INTO `queries` VALUES (5,'SELECT DISTINCT host FROM syslog;','List unique logging hosts.');
+INSERT INTO `queries` VALUES (6,'SELECT COUNT(*) FROM syslog WHERE facility = \'auth\';','Number of logged auth events.');
+INSERT INTO `queries` VALUES (7,'SELECT * FROM syslog WHERE message LIKE \'%$ARG1%\' AND message LIKE \'%$ARG2%\' LIMIT 0, 10;','10 entries containing searchstrings 1 and 2');
+INSERT INTO `queries` VALUES (8,'SELECT DISTINCT facility FROM syslog;','Number of unique facilities.');
+INSERT INTO `queries` VALUES (9,'SELECT * FROM syslog WHERE priority = \'warn\' OR priority = \'err\' OR priority = \'alert\' AND message NOT LIKE \'%grsec%\' LIMIT 0, 50;','50 events of priority warn, err or alert (excluding grsec).');
+INSERT INTO `queries` VALUES (10,'SELECT * FROM syslog WHERE message LIKE \'%ntpd%\'','Find all occurances of ntpd.');
+INSERT INTO `queries` VALUES (11,'SELECT * FROM syslog WHERE message LIKE \'sshd[%]: Accepted publickey for %\'','find all SSH logins');
+INSERT INTO `queries` VALUES (14,'SELECT * FROM syslog WHERE message LIKE \'%$ARG1%\' LIMIT 0, 10;','Search for below string');
+INSERT INTO `users` VALUES (1,'admin','password','Charley','Root','admin@localhost',6);

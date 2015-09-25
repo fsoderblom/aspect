@@ -1,0 +1,10 @@
+--- msyslog-v1.08g/src/modules/om_regex.c.cln   2005-10-03 14:29:37.000000000 +0200
++++ msyslog-v1.08g/src/modules/om_regex.c       2005-10-03 15:16:45.000000000 +0200
+@@ -141,6 +141,7 @@
+                        c->filters |= OM_FILTER_INVERSE;
+                        statbuf_len += snprintf(statbuf + statbuf_len,
+                            sizeof(statbuf) - statbuf_len, ", inverse");
++                       argcnt++;
+                        continue;
+ 
+                case 'm':

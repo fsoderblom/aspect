@@ -1,0 +1,245 @@
+body
+{
+	font-family: Arial, Verdana, Helvetica, sans-serif;
+	font-size: 12px;
+	background: #b5c5af;
+	color: #000000;
+}
+
+body.top
+{
+	margin: 0px;
+	background: #7f8595;
+	color: #ffffff;
+	padding: 10px;
+}
+
+/* NORMAL LINKS */
+a
+{
+	text-decoration: none;
+	color: #0000ff;
+}
+a:visited {}
+a:active {}
+a:hover { color: #ffffff; }
+
+/* LINKS FOR TOP MENU */
+a.menu 
+{ 
+	padding-top: 0px;
+	padding-bottom: 0px;
+	padding-left: 18px;
+	padding-right: 5px;
+	color: #000044; 
+	background: #e3dddd;
+	border: 1px solid #555555;
+	background-image: url(images/btnraster.gif);
+	background-repeat: no-repeat;
+	background-position: 1px 0px; 
+}
+a.menu:visited { }
+a.menu:active { }
+a.menu:hover { 
+	color: #000000; background: #eeeeee; 
+	background-image: url(images/btnraster.gif);
+	background-repeat: no-repeat;
+	background-position: 1px 0px; 
+}
+
+
+/* LINKS FOR RULES SORTING */
+a.sort
+{
+	text-decoration: none;
+	letter-spacing: 0px;
+}
+a.sort:visited {}
+a.sort:active {}
+a.sort:hover { color: #ffffff; }
+
+
+p, form
+{
+	margin: 0px;
+}
+
+th
+{
+	font-size: 12px;
+	font-weight: bold;
+	white-space: nowrap;
+	text-align: left;
+	vertical-align: top;
+	color: #222222;
+}
+
+th.r { text-align: right; }
+th.c { text-align: center; }
+th.l { text-align: left; }
+th.r2 { text-align: right; color: #ffffff; }
+
+#bright { background-color: #fefaee; }
+#shadow { background-color: #dddddd; }
+
+td
+{
+	vertical-align: top;
+}
+
+table.bright { border:2px solid #000000; background-color: #fefaee; }
+table.shadow { border:2px solid #000000; background-color: #dddddd; }
+td.bright { background-color: #fefaee; }
+td.shadow { background-color: #dddddd; }
+
+.flerp
+{
+	font-weight: bold;
+	font-size: 12px;
+	color: #000000;
+	background: #89b99a;
+	letter-spacing: 2px;
+	padding-left: 10px;
+	padding-right: 10px;
+	border: 1px solid black;
+	height: 14px;
+}
+
+.flerp2
+{
+	font-weight: bold;
+	font-size: 12px;
+	color: #ffffff;
+	background: #99696a;
+	letter-spacing: 2px;
+	padding-left: 10px;
+	padding-right: 10px;
+	border: 1px solid black;
+	height: 14px;
+}
+
+.tabell
+{
+	background: #acdcfc;
+}
+
+.tabellruta
+{
+	background: #3a6aaa;
+	
+}
+
+.peeptabell
+{
+	/*border: 3px solid #8888cc;*/
+	background-image: url(images/bgc.gif);
+	color: #ffffff;
+}
+	
+input, select, textarea 
+{
+	padding: 0px;
+	border: 1px solid #555555;
+	background: #ffffff;
+}
+
+.chkbox
+{
+	background-color: #b5c5af;
+	border: none;
+}
+
+.btn
+{
+	height: 20px;
+	border: 1px solid #555555; 
+	background-color: #e3dddd;
+	color: #000000;
+	text-indent: 5px;
+	padding-left: 15px;
+	padding-right: 5px;
+	background-repeat: no-repeat;
+	background-position: 3px 1px; 
+}
+
+.btn:visited { }
+.btn:active { }
+.btn:hover
+{
+	background-color: #eeeeee;
+}
+
+.btndisabled
+{
+	height: 20px;
+	border: 1px solid #bbbbbb; 
+	background-color: #f3eeee;
+	color: #aaaaaa;
+	text-indent: 5px;
+	padding-left: 15px;
+	padding-right: 5px;
+	background-repeat: no-repeat;
+	background-position: 3px 1px; 
+}
+
+
+/* Icons for buttons. */
+#btnedit { background-image: url(images/b_edit.png); }
+#btnsearch { background-image: url(images/b_search.png); }
+#btndel { background-image: url(images/trashcan.png); }
+#btnmatch { background-image: url(images/b_relations.png); }
+#btnnext { background-image: url(images/plus.gif); }
+#btnprev { background-image: url(images/minus.gif); }
+#btnrules { background-image: url(images/rules.gif); }
+#btnnew { background-image: url(images/new.gif); }
+#btnsave { background-image: url(images/bock.gif); }
+#btncancel { background-image: url(images/cancel.gif); }
+#btnrun { background-image: url(images/run.gif); }
+#btnload { background-image: url(images/load.gif); }
+#btnclear { background-image: url(images/new.gif); }
+#btnmail { background-image: url(images/mail.gif); }
+#btnlogin { background-image: url(images/mail.gif); }
+
+#date 
+{
+	padding-left: 3px;
+	padding-right: 3px;
+}
+
+
+.notice
+{
+	font-size: 12px;
+	font-weight: bold;
+	color: #4444aa;
+	letter-spacing: 2px;
+}
+
+/* Den tjockare texten som finns inne i TDs */
+.bigwhite
+{
+	font-size: 12px;
+	font-weight: bold;
+	color: #ffffff;
+	letter-spacing: 2px;
+}
+
+/* Minitext för bla historian och förklarande text */
+.info
+{
+	font-weight: bold;
+}
+
+.noborder
+{
+	font-weight: none;
+	margin: 0px;
+	color: #002222;
+    border: 0px;
+}
+
+.searchselect
+{
+	width:600px;
+	height:100px;
+}

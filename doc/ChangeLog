@@ -1,0 +1,53 @@
+2006-02-27  froo  <froo@users.sourceforge.net>
+
+	part 1 of the vendis bug fix:
+	- requirements wasn't specified
+	- defaultlogin was incorrect
+	- according to INSTALL inc.config.php was in base, not in inc subdir
+	- some mysql statements was missing database selection
+	- removed <> around examples in inc/inc.config.php to easen editing.
+	- removed CR (\015) from several files.
+
+2005-07-01  froo  <froo@users.sourceforge.net>
+
+	aspect 1.0rc2
+
+2005-06-21  froo  <froo@users.sourceforge.net>
+
+	* inc/inc.init.php, modules/maintenance/update_scratch.php,
+	tools/update_scratch.pl, update_scratch.php, update_scratch.pl:
+	- mitigated SQL injection attacks by
+		- sanitizing input
+		- moved permit/deny logic outside of the SELECT statement
+	- moved update_scratch.php to modules/maintenance, and re-enabled login check
+	- tools/update_scratch.pl is to be used for cron(1m) updates instead
+
+2005-06-18  froo  <froo@users.sourceforge.net>
+
+	* modules/search/search.php, peep.php:
+	as pointed out by Fredrik Hesse, deal with possible XSS attack, by munging all
+	syslog messages to be displayed thru htmlentities().
+
+	* update_scratch.php, update_scratch.pl:
+	update_scratch.php: update_scratch.php is replaced with a perl version
+	specifically written for cron jobs, re-enable requirement to login on
+	the PHP version, so we can use it within aspect.
+
+	update_scratch.pl: rewrote update_scratch.php in perl, to be used outside
+	of the docroot for cron jobs.
+
+2005-06-13  froo  <froo@users.sourceforge.net>
+
+	aspect 1.0rc1
+
+2004-07-25  softis  <softis@users.sourceforge.net>
+
+	* about.php, aspect.css, image.php, inc.config.php,
+	inc.footer.php, inc.header.php, inc.init.php, index.php,
+	loginpage.php, peep.php, script.js, sql.php:
+	Rewrote the concept from using tables into using real time generated images.
+	The bad thing is that this tools now requires GD lib for PHP. :)
+
+2004-06-27  froo  <froo@users.sourceforge.net>
+
+	Initial import.

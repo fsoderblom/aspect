@@ -1,0 +1,260 @@
+                                     __   
+_____    ____________   ____   _____/  |_ 
+\__  \  /  ___/\____ \_/ __ \_/ ___\   __\
+ / __ \_\___ \ |  |_> >  ___/\  \___|  |  
+(____  /____  >|   __/ \___  >\___  >__|  
+     \/     \/ |__|        \/     \/      
+
+An open source log visualisation tool.
+http://sourceforge.net/projects/aspect/
+
+Copyright (c) 2003-2007 Fredrik Söderblom and Peter Nolin
+
+-------------------------------------------------------------------------------------------
+
+INDEX
+
+1. Requirements
+2. Configure and install msyslog
+3. Configure /etc/syslog.conf
+4. Prefilter logs (optional)
+5. Configure MySQL
+6. Modify /etc/init.d/sysklogd
+7. Restart syslogd and possibly klogd
+8. Install aspect
+9. Configure aspect
+10. Configure Apache
+11. Create filter rules thru/with the Web UI
+12. Bugs, Bugs?, BUGS!?
+
+-------------------------------------------------------------------------------------------
+
+1. Requirements
+
+aspect requires the following in terms of software:
+
+- Apache v1 or v2
+- PHP4
+- The GD module for PHP4 (php4-gd)
+- MySQL v4 (v3 works but with less functionality)
+- A syslog daemon capable of feeding MySQL such as msyslogd or syslog-ng
+
+2. Configure and install msyslog
+
+Grab latest version of msyslog from sourceforge (http://sourceforge.net/projects/msyslog/),
+we have been using version 1.08g rather extensively and it works well on Linux.
+
+Create a directory for msyslog (optional), if not, default install
+points to /usr/local, which might be fine for some sites.
+
+# mkdir /opt/msyslog-X.XX
+# ln -s /opt/msyslog-X.XX /opt/msyslog
+
+Unpack, configure, compile and install msyslog
+
+# tar zxvf msyslog-vX.XX-src.tar.gz
+# cd msyslog-vX.XX
+# ./configure --prefix=/opt/msyslog
+# make
+# make install
+
+3. Configure /etc/syslog.conf
+
+msyslogd doesn't cope to well with recent extensions to the syslog.conf file format,
+hence you will need to "correct" lines with backslashes (\) as a line separator
+to lines without it, e.g.:
+
+*.debug; \
+  auth,authpriv.none; \
+  news.none;mail.none	/var/log/debug
+
+needs to replaced/converted to
+
+*.debug;auth,authpriv.none;news.none;mail.none  /var/log/debug
+
+and as always when dealing with syslog.conf, be careful to keep at least one <TAB>
+separating <selector> and <action>, e.g.:
+
+mail.info<TAB>/var/log/mail.info
+
+since most syslog implementations will not accept space as a field separator
+between <selector> and <action>.
+
+finally add an entry at the end to feed all facilities and priorities into
+the syslog table we are creating in the next section.
+
+*.*		%mysql -s localhost -u <user> -p <password> -d <db> -t <table> -D -F -P
+
+The -D is to enable DELAYED INSERTS and -F and -P tells msyslog to also log the
+facility and priority of the initial syslog message to the database table.
+
+4. Prefilter logs (optional)
+
+If you have an extreme amount of logs, you might choose to pre-filter what get's
+stored to the MySQL table, to reduce the amount of clutter when viewing the logs
+with aspect.
+
+E.g. we might have a couple of routers and firewalls doing ACCEPT logs and generating
+a tremendous amount of log entries which we really aren't all that interested in
+by the means of aspect (since we usually want to see anomalies and not that a mail
+just got dropped of to someone, or that my PIX just allowed someone to issue a DNS
+query to my DNS server)
+
+Fortunately, msyslog has a regex module which fits perfectly for this, simply prefilter
+out patterns you do not want to clutter the SQL logs with by inserting regex lines
+and using the -v (reverse result) option combined with either the -m (match exp in message)
+or -h (match exp in host), -d (match exp in date) or -t (match exp in time)
+
+(NB: msyslogd needs a patch to get the -v option to work, else it will coredump.
+for a patch, see patches/msyslogd.diff)
+
+E.g.:
+
+local0.* %regex -v -m [.*permitted.*|patt|patt] %mysql -s localhost -u <user> -p <password> -d <db> -t <table> -D -F -P
+local1.* %regex -v -m [pattern|pattern]         %mysql -s localhost -u <user> -p <password> -d <db> -t <table> -D -F -P
+*.*;local0,local1.none                          %mysql -s localhost -u <user> -p <password> -d <db> -t <table> -D -F -P
+
+Above example would remove any messages at the facility local0 or local1 matching the specified
+patterns in received syslog messages, due to the use of the -v option.
+
+5. Configure MySQL
+
+   a. Create a database for syslog
+
+   # mysql -u root -p
+   mysql> CREATE DATABASE syslog;
+   Query OK, 1 row affected (0.02 sec)
+
+   b. Create the tables needed by aspect
+
+   # mysql -u root -p syslog <structure.sql
+
+   c. Create the two users aspect needs and a user for msyslogd
+
+   # mysql -u root -p
+   mysql> GRANT SELECT ON syslog.* TO 'search'@'localhost' IDENTIFIED BY 'some-random-password';
+   mysql> GRANT SELECT,INSERT,UPDATE,DELETE ON syslog.scratch TO 'search'@'localhost' IDENTIFIED BY 'some-random-password';
+   mysql> GRANT SELECT,INSERT,UPDATE,DELETE ON syslog.queries TO 'search'@'localhost' IDENTIFIED BY 'some-random-password';
+   mysql> GRANT SELECT,INSERT,UPDATE,DELETE ON syslog.* TO 'aspect'@'localhost' IDENTIFIED BY 'some-random-password';
+   mysql> GRANT INSERT ON syslog.syslog TO 'syslog'@'localhost' IDENTIFIED BY 'some-random-password';
+
+   d. Preload saved SQL queries (optional)
+
+   # mysql -u root -p syslog <aspect-data.sql
+
+6. Modify /etc/init.d/sysklogd
+
+Modify /etc/init.d/sysklogd to start msyslog instead of the your old syslogd, usually is
+a one-liner, e.g. from Debian unstable:
+
+replace
+
+binpath=/sbin/syslogd
+
+with
+
+binpath=/opt/msyslog/sbin/syslogd (or /usr/local/sbin/syslogd, depending on your install
+prefix earlier)
+
+7. Restart syslogd and possibly klogd
+
+Usually klogd needs to be started after syslogd, so to make sure we don't loose any
+kernel logs we will restart it as well.
+
+# /etc/init.d/sysklogd restart
+# /etc/init.d/klogd restart
+
+8. Install aspect
+
+Create a new documentroot (optional) or a subdirectory of an existing document root
+and unpack the aspect ball of tar in it.
+
+# cd /var/www
+# tar zxvf aspect-X.XX.tgz
+# mv aspect-X.XX aspect.example.se
+
+Correct permissions and owner/group on files and subdirectories
+
+# chown -R root:root aspect.example.se
+# chmod -R a-w aspect.example.se
+# find aspect.example.se -type d -exec chmod 555 {} \;
+
+9. Configure aspect
+
+You will need to tell aspect which MySQL users it should use, their respective
+passwords, host that runs the MySQL server and which database to use.
+
+aspect keeps this information in a file called "inc.config.php", change directory
+into the location where aspect was installed and fire up your favourite editor (can
+i hear vim? :) and change the below fields accordingly.
+
+# cd /var/www/aspect
+# vi inc/inc.config.php
+
+/* Syslog database settings */
+$syslogHost = "localhost";
+$syslogUser = "aspect";
+$syslogPass = "some-random-password";
+$syslogDatabase = "syslog";
+
+/* Syslog database settings for the searchpage */
+$syslogSearchHost = "localhost";
+$syslogSearchUser = "search";
+$syslogSearchPass = "some-random-password";
+$syslogSearchDatabase = "syslog";
+
+10. Configure Apache
+
+Rather straightforward and nothing fancy, ie something similar to:
+
+<VirtualHost *:80>
+    ServerName aspect.example.se
+    ServerAdmin mosthamster@example.se
+    DocumentRoot /var/www/aspect.example.se
+
+    ServerSignature Off
+
+    LogLevel warn
+    ErrorLog /var/log/apache2/aspect.example.se/error.log
+    CustomLog /var/log/apache2/aspect.example.se/access.log combined
+    .
+    .
+
+    Redirect / https://aspect.example.se
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName aspect.example.se
+    ServerAdmin mosthamster@example.se
+    DocumentRoot /var/www/aspect.example.se
+
+    SSLEngine on
+    SSLCertificateFile    /etc/apache2/ssl/server.crt
+    SSLCertificateKeyFile /etc/apache2/ssl/server.key
+
+    ServerSignature Off
+
+    LogLevel warn
+    ErrorLog /var/log/apache2/aspect.example.se/error.log
+    CustomLog /var/log/apache2/aspect.example.se/access.log combined
+
+    .
+	.
+
+</VirtualHost>
+
+11. Create filter rules thru/with the Web UI
+
+Fire up your favourite web browser, and point it at http://aspect.example.se,
+you should get redirected to the SSL site and see the aspect login screen.
+
+Login with user admin and password "password" (original huh? :) you will
+however be forced to change the admin password after the initial login.
+
+12. Bugs, Bugs?, BUGS!?
+
+Please use sourceforge's bug tracker to submit bug reports for aspect (or even
+better, drop us a well formatted unidiff fixing the problem :)
+
+Questions can be directed to either froo (at) users.sourceforge.net or
+softis (at) users.sourceforge.net
